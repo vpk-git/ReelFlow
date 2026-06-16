@@ -176,6 +176,22 @@ def main():
         </div>
         """
 
+    # Grab images for the top 3 products in products.json to display in the hero banner
+    hero_images = []
+    for p in products[:3]:
+        p_slug = slugify(p["name"])
+        img_path = f"product_images/{p_slug}/1.jpg"
+        if not os.path.exists(img_path):
+            if os.path.exists(f"product_images/{p_slug}/1.png"):
+                img_path = f"product_images/{p_slug}/1.png"
+            else:
+                img_path = "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=150"
+        hero_images.append(img_path)
+    
+    # Pad if less than 3
+    while len(hero_images) < 3:
+        hero_images.append("https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=150")
+
     # Generate Featured Card HTML
     featured_slug = slugify(featured["name"])
     featured_img = f"product_images/{featured_slug}/1.jpg"
@@ -1138,28 +1154,16 @@ def main():
             </button>
         </div>
 
-        <!-- Utility simulation icons (Rewise style) -->
-        <div class="header-utilities">
-            <a class="utility-item">
-                <div class="utility-icon-box">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                </div>
-                <span>Login</span>
-            </a>
-            <a class="utility-item">
-                <div class="utility-icon-box">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                    <span class="utility-badge">0</span>
-                </div>
-                <span>Wishlist</span>
-            </a>
-            <a class="utility-item">
-                <div class="utility-icon-box">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    <span class="utility-badge">0</span>
-                </div>
-                <span>Compare</span>
-            </a>
+        <!-- Search Bar with categories dropdown -->
+        <div class="search-container" style="max-width: 650px; margin-right: 0;">
+            <input type="text" id="search-input" class="search-input" placeholder="Search product name, category, or features..." oninput="handleSearch()" />
+            <select id="category-select" class="category-select-dropdown" onchange="handleSearch()">
+                <option value="all">All Categories</option>
+                {category_options_html}
+            </select>
+            <button class="search-btn" onclick="handleSearch()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
         </div>
     </header>
 
@@ -1167,14 +1171,8 @@ def main():
     <nav class="navigation-bar">
         <ul class="nav-links">
             <li><a href="#catalog-section" onclick="selectCategory('all')">All Deals</a></li>
-            <li><a href="#catalog-section" onclick="scrollToCatalog()">Coupon Layouts</a></li>
-            <li><a href="#catalog-section" onclick="scrollToCatalog()">Trending Deals</a></li>
-            <li><a href="https://vpk-git.github.io/ReelFlow/" target="_blank">Mega Menu</a></li>
+            <li><a href="#catalog-section" onclick="scrollToCatalog()">Deals Catalog</a></li>
         </ul>
-        <a href="#" class="wishlist-link-right">
-            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            Wishlist
-        </a>
     </nav>
 
     <!-- Hero Banner (Rewise Style) -->
@@ -1184,20 +1182,20 @@ def main():
                 <span style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">⚡ Live Comparison Portal</span>
             </div>
             <h1 class="hero-tagline">Let's Compare</h1>
-            <p class="hero-subtitle">Shop wise with price comparisons from ReelFlow</p>
-            <p class="hero-desc">Supports user reviews, real-time catalog price checks, custom affiliate discount badges, and interactive countdown resets. Click check features below to see all automated options!</p>
-            <button class="hero-btn" onclick="scrollToCatalog()">Check Features</button>
+            <p class="hero-subtitle">Shop wise with verified pricing from ReelFlow</p>
+            <p class="hero-desc">Check out handpicked Indian electronics deals with active discount percentages, deal countdown timers, and quick WhatsApp sharing.</p>
+            <button class="hero-btn" onclick="scrollToCatalog()">Explore Deals</button>
         </div>
         <div class="hero-graphics">
-            <!-- 3 category sample cards -->
+            <!-- 3 actual product graphic cards -->
             <div class="graphic-hexagon-card">
-                <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=150" alt="Gadgets" />
+                <img src="{hero_images[0]}" alt="Top Gadget 1" />
             </div>
             <div class="graphic-hexagon-card" style="transform: rotate(15deg); margin-top: 25px;">
-                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150" alt="Audio" />
+                <img src="{hero_images[1]}" alt="Top Gadget 2" />
             </div>
             <div class="graphic-hexagon-card" style="transform: rotate(-5deg); margin-top: -20px;">
-                <img src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=150" alt="Accessories" />
+                <img src="{hero_images[2]}" alt="Top Gadget 3" />
             </div>
         </div>
     </section>
