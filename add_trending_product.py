@@ -181,10 +181,11 @@ def main():
         print(f"Verifying image for '{name}' (ASIN: {asin})...")
         if verify_asin_image(asin):
             # Construct product entry
+            associate_tag = os.environ.get("AMAZON_ASSOCIATE_TAG", "your_tag-21").strip()
             new_entry = {
                 "name": name,
                 "category": category,
-                "affiliate_link": f"https://www.amazon.in/dp/{asin}?tag=your_tag-21",
+                "affiliate_link": f"https://www.amazon.in/dp/{asin}?tag={associate_tag}",
                 "selling_points": selling_points
             }
             existing_products.append(new_entry)

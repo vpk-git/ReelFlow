@@ -2,6 +2,48 @@ import os
 import json
 import re
 
+def load_env(filepath=".env"):
+    """Manually parse a .env file to load variables into os.environ."""
+    if not os.path.exists(filepath):
+        return False
+    with open(filepath, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                key, val = line.split("=", 1)
+                val_str = val.strip().strip("'").strip('"')
+                os.environ[key.strip()] = val_str
+    return True
+
+def sanitize_link(link):
+    """Dynamically replaces Amazon tags and Flipkart ids with the correct ones from .env."""
+    if not link:
+        return link
+    
+    # Check for Amazon
+    if "amazon" in link.lower():
+        associate_tag = os.environ.get("AMAZON_ASSOCIATE_TAG")
+        if associate_tag and associate_tag.strip():
+            if "tag=" in link:
+                link = re.sub(r'tag=[^&]*', f'tag={associate_tag.strip()}', link)
+            else:
+                connector = "&" if "?" in link else "?"
+                link = f"{link}{connector}tag={associate_tag.strip()}"
+                
+    # Check for Flipkart
+    elif "flipkart" in link.lower():
+        flipkart_tag = os.environ.get("FLIPKART_AFFILIATE_ID")
+        if flipkart_tag and flipkart_tag.strip():
+            if "affid=" in link:
+                link = re.sub(r'affid=[^&]*', f'affid={flipkart_tag.strip()}', link)
+            else:
+                connector = "&" if "?" in link else "?"
+                link = f"{link}{connector}affid={flipkart_tag.strip()}"
+            
+    return link
+
 def slugify(text):
     """Converts product name into a standard lowercase directory name."""
     text = text.lower()
@@ -32,6 +74,7 @@ def load_data():
 
 def main():
     print("=== Generating Link-in-Bio Landing Page ===")
+    load_env()
     products, history = load_data()
     
     if not products:
@@ -53,15 +96,22 @@ def main():
     
     if active_history:
         featured_name = active_history[0]
-        featured = prod_map[featured_name]
+        featured = prod_map[featured_name].copy()
+        featured["affiliate_link"] = sanitize_link(featured["affiliate_link"])
         
         # Previous products are the rest of the history
         for name in active_history[1:]:
-            previous_prods.append(prod_map[name])
+            p_copy = prod_map[name].copy()
+            p_copy["affiliate_link"] = sanitize_link(p_copy["affiliate_link"])
+            previous_prods.append(p_copy)
     else:
         # Fallback if history is empty: use first product in products.json as featured
-        featured = products[0]
-        previous_prods = products[1:6] # show a few as previous
+        featured = products[0].copy()
+        featured["affiliate_link"] = sanitize_link(featured["affiliate_link"])
+        for p in products[1:6]:
+            p_copy = p.copy()
+            p_copy["affiliate_link"] = sanitize_link(p_copy["affiliate_link"])
+            previous_prods.append(p_copy)
         
     # Build the HTML content
     featured_slug = slugify(featured["name"])
