@@ -310,6 +310,12 @@
             color: var(--accent-secondary);
             text-decoration: none;
         }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -323,60 +329,18 @@
             <p class="bio">Daily curated tech deals and gadget reviews in India. Click below to shop!</p>
         </header>
         
-        <!-- Featured Product -->
+        <!-- Placeholder for Empty History -->
         <div>
-            <h2 class="section-title">Today's Featured Deal</h2>
-            <div class="featured-card">
-                <span class="featured-badge">Featured</span>
-                <div class="featured-img-container">
-                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500" alt="Zebronics Zeb-Transformer Gaming Keyboard and Mouse" />
-                </div>
-                <div class="featured-info">
-                    <span class="featured-category">GAMING KEYBOARD</span>
-                    <h3 class="featured-title">Zebronics Zeb-Transformer Gaming Keyboard and Mouse</h3>
-                    <ul class="featured-points">
-                        <li>Multicolor LED backlit keyboard and mouse</li><li>Durable metal body structure</li><li>Dedicated media control keys</li><li>High precision gaming mouse with DPI settings</li>
-                    </ul>
-                </div>
-                <a href="https://www.amazon.in/dp/B078N2K8G8?tag=goal2rush26-21" target="_blank" class="cta-btn">Get it on Amazon</a>
+            <h2 class="section-title">Deals Launching Soon</h2>
+            <div class="featured-card" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
+                <div style="font-size: 3.5rem; animation: pulse 2s infinite ease-in-out;">🚀</div>
+                <h3 class="featured-title">Launch Mode Activated</h3>
+                <p class="featured-desc" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; max-width: 320px; margin: 0 auto;">We are preparing our first daily tech deal. Check back soon for handpicked tech gadgets in India!</p>
             </div>
         </div>
         
         <!-- Previous Products -->
-        <div><h2 class="section-title">Previous Recommendations</h2><div class="product-list">
-        <div class="product-card">
-            <div class="card-img-container">
-                <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500" alt="Generic RGB LED Strip Lights" class="card-img" />
-            </div>
-            <div class="card-content">
-                <h3 class="card-title">Generic RGB LED Strip Lights</h3>
-                <p class="card-category">LED STRIP LIGHTS</p>
-                <a href="https://www.amazon.in/dp/B08XMDCHNP?tag=goal2rush26-21" target="_blank" class="card-btn">Shop on Amazon</a>
-            </div>
-        </div>
         
-        <div class="product-card">
-            <div class="card-img-container">
-                <img src="product_images/mi_10000mah_power_bank_3i/1.jpg" alt="Mi 10000mAh Power Bank 3i" class="card-img" />
-            </div>
-            <div class="card-content">
-                <h3 class="card-title">Mi 10000mAh Power Bank 3i</h3>
-                <p class="card-category">POWER BANK</p>
-                <a href="https://www.amazon.in/dp/B08HV83HL3?tag=goal2rush26-21" target="_blank" class="card-btn">Shop on Amazon</a>
-            </div>
-        </div>
-        
-        <div class="product-card">
-            <div class="card-img-container">
-                <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500" alt="SanDisk Ultra Dual Drive Luxe USB Type-C" class="card-img" />
-            </div>
-            <div class="card-content">
-                <h3 class="card-title">SanDisk Ultra Dual Drive Luxe USB Type-C</h3>
-                <p class="card-category">USB DRIVE TYPE C</p>
-                <a href="https://www.amazon.in/dp/B0842NMT9D?tag=goal2rush26-21" target="_blank" class="card-btn">Shop on Amazon</a>
-            </div>
-        </div>
-        </div></div>
         
         <!-- Footer -->
         <footer>

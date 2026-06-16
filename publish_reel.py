@@ -178,6 +178,29 @@ def main():
         print("🎉 REEL PUBLISHED SUCCESSFULLY!")
         print(f"Published Reel ID: {published_id}")
         print("==============================================")
+        
+        # Update history.json upon successful publication
+        if os.path.exists(script_path):
+            try:
+                with open(script_path, "r", encoding="utf-8") as f:
+                    script_data = json.load(f)
+                prod_name = script_data.get("product_name")
+                if prod_name:
+                    history_file = "history.json"
+                    history = []
+                    if os.path.exists(history_file):
+                        try:
+                            with open(history_file, "r", encoding="utf-8") as f:
+                                history = json.load(f)
+                        except Exception:
+                            pass
+                    if prod_name not in history:
+                        history.append(prod_name)
+                        with open(history_file, "w", encoding="utf-8") as f:
+                            json.dump(history, f, indent=4, ensure_ascii=False)
+                        print(f"Successfully added '{prod_name}' to history.json.")
+            except Exception as he:
+                print(f"Warning: Could not update history.json: {he}")
     except Exception as e:
         print(f"Error publishing Reel: {e}")
         sys.exit(1)

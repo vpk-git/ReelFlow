@@ -105,30 +105,55 @@ def main():
             p_copy["affiliate_link"] = sanitize_link(p_copy["affiliate_link"])
             previous_prods.append(p_copy)
     else:
-        # Fallback if history is empty: use first product in products.json as featured
-        featured = products[0].copy()
-        featured["affiliate_link"] = sanitize_link(featured["affiliate_link"])
-        for p in products[1:6]:
-            p_copy = p.copy()
-            p_copy["affiliate_link"] = sanitize_link(p_copy["affiliate_link"])
-            previous_prods.append(p_copy)
+        featured = None
+        previous_prods = []
         
     # Build the HTML content
-    featured_slug = slugify(featured["name"])
-    # Check if a custom image exists, otherwise use fallback image path
-    featured_img = f"product_images/{featured_slug}/1.jpg"
-    if not os.path.exists(featured_img):
-        # Check for png
-        if os.path.exists(f"product_images/{featured_slug}/1.png"):
-            featured_img = f"product_images/{featured_slug}/1.png"
-        else:
-            featured_img = "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500" # fallback online image
+    if featured:
+        featured_slug = slugify(featured["name"])
+        # Check if a custom image exists, otherwise use fallback image path
+        featured_img = f"product_images/{featured_slug}/1.jpg"
+        if not os.path.exists(featured_img):
+            # Check for png
+            if os.path.exists(f"product_images/{featured_slug}/1.png"):
+                featured_img = f"product_images/{featured_slug}/1.png"
+            else:
+                featured_img = "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500" # fallback online image
+                
+        featured_cta = "Get it on Amazon"
+        if "flipkart.com" in featured["affiliate_link"] or "dl.flipkart.com" in featured["affiliate_link"]:
+            featured_cta = "Get it on Flipkart"
             
-    featured_cta = "Get it on Amazon"
-    if "flipkart.com" in featured["affiliate_link"] or "dl.flipkart.com" in featured["affiliate_link"]:
-        featured_cta = "Get it on Flipkart"
+        selling_points_html = "".join([f"<li>{sp}</li>" for sp in featured.get("selling_points", [])])
         
-    selling_points_html = "".join([f"<li>{sp}</li>" for sp in featured.get("selling_points", [])])
+        featured_html = f"""<!-- Featured Product -->
+        <div>
+            <h2 class="section-title">Today's Featured Deal</h2>
+            <div class="featured-card">
+                <span class="featured-badge">Featured</span>
+                <div class="featured-img-container">
+                    <img src="{featured_img}" alt="{featured['name']}" />
+                </div>
+                <div class="featured-info">
+                    <span class="featured-category">{featured['category'].upper()}</span>
+                    <h3 class="featured-title">{featured['name']}</h3>
+                    <ul class="featured-points">
+                        {selling_points_html}
+                    </ul>
+                </div>
+                <a href="{featured['affiliate_link']}" target="_blank" class="cta-btn">{featured_cta}</a>
+            </div>
+        </div>"""
+    else:
+        featured_html = """<!-- Placeholder for Empty History -->
+        <div>
+            <h2 class="section-title">Deals Launching Soon</h2>
+            <div class="featured-card" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
+                <div style="font-size: 3.5rem; animation: pulse 2s infinite ease-in-out;">🚀</div>
+                <h3 class="featured-title">Launch Mode Activated</h3>
+                <p class="featured-desc" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; max-width: 320px; margin: 0 auto;">We are preparing our first daily tech deal. Check back soon for handpicked tech gadgets in India!</p>
+            </div>
+        </div>"""
     
     # Build previous products grid HTML
     prev_grid_html = ""
@@ -471,6 +496,12 @@ def main():
             color: var(--accent-secondary);
             text-decoration: none;
         }}
+        
+        @keyframes pulse {{
+            0% {{ transform: scale(1); }}
+            50% {{ transform: scale(1.05); }}
+            100% {{ transform: scale(1); }}
+        }}
     </style>
 </head>
 <body>
@@ -484,24 +515,7 @@ def main():
             <p class="bio">Daily curated tech deals and gadget reviews in India. Click below to shop!</p>
         </header>
         
-        <!-- Featured Product -->
-        <div>
-            <h2 class="section-title">Today's Featured Deal</h2>
-            <div class="featured-card">
-                <span class="featured-badge">Featured</span>
-                <div class="featured-img-container">
-                    <img src="{featured_img}" alt="{featured['name']}" />
-                </div>
-                <div class="featured-info">
-                    <span class="featured-category">{featured['category'].upper()}</span>
-                    <h3 class="featured-title">{featured['name']}</h3>
-                    <ul class="featured-points">
-                        {selling_points_html}
-                    </ul>
-                </div>
-                <a href="{featured['affiliate_link']}" target="_blank" class="cta-btn">{featured_cta}</a>
-            </div>
-        </div>
+        {featured_html}
         
         <!-- Previous Products -->
         {f'<div><h2 class="section-title">Previous Recommendations</h2><div class="product-list">{prev_grid_html}</div></div>' if prev_grid_html else ''}

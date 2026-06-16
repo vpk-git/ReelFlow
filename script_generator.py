@@ -78,17 +78,14 @@ def select_product(topic=None):
         print("All products in pool have been used. Resetting history...")
         history = []
         available = products
+        try:
+            with open(history_file, "w", encoding="utf-8") as f:
+                json.dump([], f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            print(f"Warning: Could not reset history.json: {e}")
         
     selected = random.choice(available)
     
-    # Update history
-    history.append(selected["name"])
-    try:
-        with open(history_file, "w", encoding="utf-8") as f:
-            json.dump(history, f, indent=4, ensure_ascii=False)
-    except Exception as e:
-        print(f"Warning: Could not save history.json: {e}")
-        
     print(f"Selected product from pool: '{selected['name']}'")
     return selected
 
