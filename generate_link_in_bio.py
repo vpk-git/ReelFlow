@@ -176,17 +176,18 @@ def main():
         </div>
         """
 
-    # Grab images for the top 3 products in products.json to display in the hero banner
+    # Grab images for the top 3 products in products.json that actually have local images to display in the hero banner
     hero_images = []
-    for p in products[:3]:
+    for p in products:
         p_slug = slugify(p["name"])
         img_path = f"product_images/{p_slug}/1.jpg"
-        if not os.path.exists(img_path):
-            if os.path.exists(f"product_images/{p_slug}/1.png"):
-                img_path = f"product_images/{p_slug}/1.png"
-            else:
-                img_path = "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=150"
-        hero_images.append(img_path)
+        if os.path.exists(img_path):
+            hero_images.append(img_path)
+        elif os.path.exists(f"product_images/{p_slug}/1.png"):
+            hero_images.append(f"product_images/{p_slug}/1.png")
+            
+        if len(hero_images) >= 3:
+            break
     
     # Pad if less than 3
     while len(hero_images) < 3:
