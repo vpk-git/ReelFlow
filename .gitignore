@@ -1,0 +1,15 @@
+# Local configuration and API secrets
+.env
+
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# Local temporary media assets
+*.wav
+*.mp3
+*.mp4
+*.srt
+script.json
+history.json
