@@ -59,6 +59,19 @@ def main():
             
     print(f"Loaded Caption: \"{caption[:60]}...\"")
     
+    # Extract hashtags and build clean caption
+    import re
+    hashtags = re.findall(r'#\w+', caption)
+    hashtag_str = " ".join(hashtags) if hashtags else ""
+    
+    clean_caption = re.sub(r'#\w+', '', caption).strip()
+    # Clean up double line breaks
+    clean_caption = re.sub(r'\n\s*\n+', '\n\n', clean_caption).strip()
+    
+    print(f"Clean Caption (Feed): \"{clean_caption[:60]}...\"")
+    if hashtag_str:
+        print(f"Hashtags (Comment): \"{hashtag_str[:60]}...\"")
+    
     # Step 1: Initialize Resumable Upload Session (Create Container)
     print("\n[Step 1/4] Initializing Resumable Upload Session with Instagram Graph API...")
     init_url = f"https://graph.facebook.com/v20.0/{ig_user_id}/media"
@@ -66,7 +79,7 @@ def main():
         "access_token": access_token,
         "upload_type": "resumable",
         "media_type": "REELS",
-        "caption": caption
+        "caption": clean_caption
     }
     
     try:
@@ -179,13 +192,31 @@ def main():
         print(f"Published Reel ID: {published_id}")
         print("==============================================")
         
-        # Update history.json upon successful publication
+        # Post hashtags as first comment if they exist
+        if hashtag_str:
+            print("\n[Bonus Step] Posting hashtags as a first comment...")
+            comment_url = f"https://graph.facebook.com/v20.0/{published_id}/comments"
+            comment_params = {
+                "message": hashtag_str,
+                "access_token": access_token
+            }
+            try:
+                comment_response = requests.post(comment_url, params=comment_params)
+                if comment_response.status_code == 200:
+                    print("  Hashtags comment posted successfully!")
+                else:
+                    print(f"  Warning: Failed to post comment: {comment_response.json()}")
+            except Exception as ce:
+                print(f"  Warning: Error posting comment: {ce}")
+        
+        # Update history.json and history_log.json upon successful publication
         if os.path.exists(script_path):
             try:
                 with open(script_path, "r", encoding="utf-8") as f:
                     script_data = json.load(f)
                 prod_name = script_data.get("product_name")
                 if prod_name:
+                    # 1. Update simple history.json
                     history_file = "history.json"
                     history = []
                     if os.path.exists(history_file):
@@ -199,8 +230,31 @@ def main():
                         with open(history_file, "w", encoding="utf-8") as f:
                             json.dump(history, f, indent=4, ensure_ascii=False)
                         print(f"Successfully added '{prod_name}' to history.json.")
+                        
+                    # 2. Update rich history_log.json
+                    log_file = "history_log.json"
+                    logs = []
+                    if os.path.exists(log_file):
+                        try:
+                            with open(log_file, "r", encoding="utf-8") as f:
+                                logs = json.load(f)
+                        except Exception:
+                            pass
+                            
+                    import datetime
+                    new_entry = {
+                        "timestamp": datetime.datetime.now().isoformat().split('.')[0],
+                        "product_name": prod_name,
+                        "reel_id": published_id,
+                        "caption": caption,
+                        "status": "SUCCESS"
+                    }
+                    logs.append(new_entry)
+                    with open(log_file, "w", encoding="utf-8") as f:
+                        json.dump(logs, f, indent=4, ensure_ascii=False)
+                    print(f"Successfully logged publication details to history_log.json.")
             except Exception as he:
-                print(f"Warning: Could not update history.json: {he}")
+                print(f"Warning: Could not update history log files: {he}")
     except Exception as e:
         print(f"Error publishing Reel: {e}")
         sys.exit(1)

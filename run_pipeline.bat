@@ -4,7 +4,7 @@ echo   ReelFlow: Automated Instagram Reels Pipeline
 echo   Started at: %date% %time%
 echo ===================================================
 
-cd /d "d:\reelflow"
+cd /d "%~dp0"
 
 :: Clean up old files to ensure a fresh run
 if exist script.json del script.json
@@ -25,6 +25,12 @@ echo [2/4] Downloading vertical background video...
 if errorlevel 1 (
     echo Error: Background download failed. Exiting.
     exit /b 1
+)
+
+echo [2.5/4] Enhancing product images with AI background removal and branding...
+.venv\Scripts\python image_enhancer.py
+if errorlevel 1 (
+    echo Warning: Image enhancement failed. Continuing with raw images.
 )
 
 echo [3/4] Synthesizing voiceover and compiling video...

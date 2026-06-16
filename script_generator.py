@@ -128,8 +128,52 @@ def download_from_bing(query, folder):
         print(f"  Warning: Error searching Bing: {e}")
         return []
 
+def download_from_flipkart(query, folder):
+    """Searches Flipkart for the product name, extracts up to 4 high-res product photos, and saves them."""
+    print(f"Attempting to download product photos from Flipkart for: '{query}'...")
+    url = f"https://www.flipkart.com/search?q={urllib.parse.quote(query)}"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+    }
+    
+    downloaded_images = []
+    try:
+        r = requests.get(url, headers=headers, timeout=10)
+        if r.status_code != 200:
+            print(f"  Flipkart search failed (Status Code {r.status_code})")
+            return []
+            
+        matches = re.findall(r'rukminim[0-9]\.flixcart\.com/image/\d+/\d+/([^"\'\s]+?\.jpeg)', r.text)
+        
+        unique_paths = []
+        seen = set()
+        for path in matches:
+            if path not in seen:
+                seen.add(path)
+                unique_paths.append(path)
+                
+        print(f"  Found {len(unique_paths)} unique images on Flipkart.")
+        
+        for idx, path in enumerate(unique_paths):
+            if len(downloaded_images) >= 4:
+                break
+            # Convert to high-res (1000x1000)
+            img_url = f"https://rukminim2.flixcart.com/image/1000/1000/{path}"
+            try:
+                r_img = requests.get(img_url, headers=headers, timeout=5)
+                if r_img.status_code == 200 and len(r_img.content) > 2000:
+                    downloaded_images.append(r_img.content)
+                    print(f"  Successfully downloaded Flipkart image #{len(downloaded_images)}")
+            except Exception:
+                pass
+        return downloaded_images
+    except Exception as e:
+        print(f"  Warning: Error searching Flipkart: {e}")
+        return []
+
 def download_product_images(product):
-    """Downloads actual product images from Amazon or Bing (using ASIN and search) and falls back to Pexels if needed."""
+    """Downloads actual product images from Flipkart, Amazon, or Bing, and falls back to Pexels if needed."""
     product_name = product["name"]
     category = product["category"]
     affiliate_link = product["affiliate_link"]
@@ -156,44 +200,49 @@ def download_product_images(product):
     downloaded_count = 0
     actual_images = []
     
-    # 1. Try to extract ASIN and download actual product photos from Amazon
-    asin = None
-    match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', affiliate_link)
-    if match:
-        asin = match.group(1)
-        
-    if asin:
-        print(f"Attempting to download actual product photos from Amazon (ASIN: {asin})...")
-        suffixes = [
-            "LZZZZZZZ",  # Main image
-            "PT01.LZZZZZZZ",
-            "PT02.LZZZZZZZ",
-            "PT03.LZZZZZZZ",
-            "PT04.LZZZZZZZ",
-            "PT05.LZZZZZZZ",
-            "PT06.LZZZZZZZ"
-        ]
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-        
-        for suffix in suffixes:
-            amazon_img_url = f"https://images.amazon.com/images/P/{asin}.01.{suffix}.jpg"
-            try:
-                r = requests.get(amazon_img_url, headers=headers, timeout=10)
-                if r.status_code == 200 and len(r.content) > 1000:
-                    actual_images.append(r.content)
-                    print(f"  Successfully fetched actual Amazon product image with suffix: {suffix}")
-                    if len(actual_images) >= 4:
-                        break
-            except Exception as e:
-                print(f"  Warning: Error fetching suffix {suffix}: {e}")
-                
-    # 2. Try Bing Images search if Amazon returned no images (for Flipkart or unindexed Amazon products)
+    # 1. Try Flipkart first (highly reliable for Indian e-commerce / affiliate products)
+    actual_images = download_from_flipkart(product_name, folder)
+    
+    # 2. Try to extract ASIN and download actual product photos from Amazon (legacy fallback)
     if not actual_images:
-        actual_images = download_from_bing(product_name, folder)
+        asin = None
+        match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', affiliate_link)
+        if match:
+            asin = match.group(1)
+            
+        if asin:
+            print(f"Attempting to download actual product photos from Amazon (ASIN: {asin})...")
+            suffixes = [
+                "LZZZZZZZ",  # Main image
+                "PT01.LZZZZZZZ",
+                "PT02.LZZZZZZZ",
+                "PT03.LZZZZZZZ",
+                "PT04.LZZZZZZZ",
+                "PT05.LZZZZZZZ",
+                "PT06.LZZZZZZZ"
+            ]
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            
+            for suffix in suffixes:
+                amazon_img_url = f"https://images.amazon.com/images/P/{asin}.01.{suffix}.jpg"
+                try:
+                    r = requests.get(amazon_img_url, headers=headers, timeout=10)
+                    if r.status_code == 200 and len(r.content) > 1000:
+                        actual_images.append(r.content)
+                        print(f"  Successfully fetched actual Amazon product image with suffix: {suffix}")
+                        if len(actual_images) >= 4:
+                            break
+                except Exception as e:
+                    print(f"  Warning: Error fetching suffix {suffix}: {e}")
+                    
+    # 3. Try Bing Images search if Flipkart & Amazon both returned no images
+    if not actual_images:
+        # Append "product photo" to query to avoid triggering shopping layout on Bing
+        actual_images = download_from_bing(product_name + " product photo", folder)
         
-    # 3. If actual images were retrieved (Amazon or Bing), distribute to slides
+    # 4. If actual images were retrieved (Flipkart, Amazon, or Bing), distribute to slides
     if actual_images:
         # Clean folder first to avoid leftover images
         for f in os.listdir(folder):
@@ -218,7 +267,7 @@ def download_product_images(product):
         with open(os.path.join(folder, ".actual_focus"), "w") as f:
             f.write("actual_focus")
             
-    # 4. Fallback: If Amazon and Bing both failed, try to get general photos from Pexels
+    # 5. Fallback: If Flipkart, Amazon, and Bing all failed, try to get general photos from Pexels
     if downloaded_count == 0:
         pexels_key = os.environ.get("PEXELS_API_KEY")
         if pexels_key:
@@ -421,8 +470,8 @@ def main():
             aff_link = re.sub(r'affid=[^&]+', f'affid={flipkart_tag.strip()}', aff_link)
             
         script_data["affiliate_link"] = aff_link
-        # Customize the caption to append the specific affiliate link CTA
-        cta_text = f"\n\n👉 Get it here: {aff_link}\n(Link also in bio!)"
+        # Customize the caption to direct users to the hosted Link-in-Bio landing page
+        cta_text = "\n\n👉 Get the product link & price here: https://vpk-git.github.io/ReelFlow/\n(Link in bio!)"
         script_data["caption"] = script_data.get("caption", "") + cta_text
     else:
         script_data["product_name"] = None

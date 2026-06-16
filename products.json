@@ -8,7 +8,9 @@
             "IPX4 water and sweat resistance",
             "Beast Mode with low latency for gaming",
             "Fast charge: 5 mins charge gives 75 mins playback"
-        ]
+        ],
+        "price": 1299,
+        "original_price": 2990
     },
     {
         "name": "Portronics Toad 23 Wireless Mouse",
@@ -19,7 +21,9 @@
             "Ergonomic silent click buttons",
             "Adjustable DPI settings (1200/1600)",
             "Long battery life with auto-sleep mode"
-        ]
+        ],
+        "price": 299,
+        "original_price": 599
     },
     {
         "name": "TP-Link Tapo Smart Wi-Fi Plug",
@@ -30,7 +34,9 @@
             "Voice control support for Alexa and Google Assistant",
             "Schedule and timer functions",
             "Away mode to turn devices on/off randomly"
-        ]
+        ],
+        "price": 999,
+        "original_price": 1999
     },
     {
         "name": "Wipro 9W Smart LED Bulb",
@@ -41,7 +47,9 @@
             "Control via Wipro Next Smart Home app",
             "Compatible with Alexa and Google Assistant",
             "Dimming and scheduling options"
-        ]
+        ],
+        "price": 599,
+        "original_price": 1299
     },
     {
         "name": "SanDisk Ultra Dual Drive Luxe USB Type-C",
@@ -52,7 +60,9 @@
             "High-speed USB 3.1 performance with 150MB/s read speeds",
             "All-metal swivel design",
             "SanDisk Memory Zone app for automatic backup"
-        ]
+        ],
+        "price": 1099,
+        "original_price": 2400
     },
     {
         "name": "Keychron K2 Mechanical Keyboard",
@@ -63,7 +73,9 @@
             "Mac and Windows layout compatibility",
             "Gateron mechanical switches (Blue/Red/Brown)",
             "Connect up to 3 devices via Bluetooth"
-        ]
+        ],
+        "price": 6999,
+        "original_price": 9999
     },
     {
         "name": "Mi 10000mAh Power Bank 3i",
@@ -74,7 +86,9 @@
             "Dual input (Type-C and Micro USB) and triple output ports",
             "12-layer advanced circuit protection",
             "Smart power management for low-power accessories"
-        ]
+        ],
+        "price": 1299,
+        "original_price": 1899
     },
     {
         "name": "Logitech K380 Multi-Device Bluetooth Keyboard",
@@ -85,7 +99,9 @@
             "Slim, lightweight, and compact design",
             "Quiet, comfortable, low-profile keys",
             "2-year battery life with pre-installed AAA batteries"
-        ]
+        ],
+        "price": 2499,
+        "original_price": 3999
     },
     {
         "name": "OnePlus Nord Buds 2 Wireless Earbuds",
@@ -96,7 +112,9 @@
             "12.4mm dynamic bass drivers",
             "Up to 36 hours of total battery life",
             "IP55 water and dust resistance"
-        ]
+        ],
+        "price": 2499,
+        "original_price": 3299
     },
     {
         "name": "Portronics Ruffpad 8.5 Reusable LCD Writing Pad",
@@ -107,7 +125,9 @@
             "One-touch erase button with lock key",
             "Eco-friendly: saves paper and trees",
             "Lightweight and shockproof design"
-        ]
+        ],
+        "price": 299,
+        "original_price": 999
     },
     {
         "name": "boAt Stone 350 Portable Bluetooth Speaker",
@@ -118,7 +138,9 @@
             "Up to 12 hours of playtime per charge",
             "IPX7 water and splash resistance",
             "Multiple connectivity: Bluetooth, AUX, and TF card"
-        ]
+        ],
+        "price": 1299,
+        "original_price": 3490
     },
     {
         "name": "ELV Direct Aluminum Mobile Phone Stand",
@@ -129,7 +151,9 @@
             "Multi-angle adjustable viewing angles",
             "Anti-slip silicone pads to prevent scratches",
             "Charging cable pass-through hole"
-        ]
+        ],
+        "price": 299,
+        "original_price": 999
     },
     {
         "name": "Zebronics Zeb-Transformer Gaming Keyboard and Mouse",
@@ -140,7 +164,9 @@
             "Durable metal body structure",
             "Dedicated media control keys",
             "High precision gaming mouse with DPI settings"
-        ]
+        ],
+        "price": 1299,
+        "original_price": 1999
     },
     {
         "name": "Generic RGB LED Strip Lights",
@@ -151,7 +177,9 @@
             "Self-adhesive tape for easy installation",
             "Flexible strips for backlighting TVs or desks",
             "USB-powered plug-and-play convenience"
-        ]
+        ],
+        "price": 399,
+        "original_price": 999
     },
     {
         "name": "Amazon Basics Laptop Stand",
@@ -162,7 +190,9 @@
             "Mesh design for improved laptop ventilation",
             "Adjustable shelf to customize desk space",
             "Durable metal frame with cable organizer slot"
-        ]
+        ],
+        "price": 699,
+        "original_price": 1499
     },
     {
         "name": "TP-Link Tapo Smart Security Camera",
@@ -173,7 +203,9 @@
             "Pan and tilt (360 degrees horizontal and 114 degrees vertical)",
             "Advanced night vision up to 30 feet",
             "Motion detection and instant push alerts"
-        ]
+        ],
+        "price": 2299,
+        "original_price": 3299
     },
     {
         "name": "JBL Go 3 Portable Mini Speaker",
@@ -184,7 +216,9 @@
             "IP67 waterproof and dustproof design",
             "Up to 5 hours of playtime",
             "Built-in loop strap for easy portability"
-        ]
+        ],
+        "price": 2999,
+        "original_price": 3999
     },
     {
         "name": "Redgear A-15 Wired Gaming Mouse",
@@ -195,7 +229,9 @@
             "Up to 6400 DPI adjustments",
             "RGB breathing lighting patterns",
             "Durable switches with ergonomic design"
-        ]
+        ],
+        "price": 399,
+        "original_price": 799
     },
     {
         "name": "Crossloop Magnetic Cable Protector and Organizer",
@@ -206,7 +242,9 @@
             "Eco-friendly silicone material",
             "Compatible with USB, Type-C, and flat cables",
             "Reusable sticky base tape"
-        ]
+        ],
+        "price": 199,
+        "original_price": 499
     },
     {
         "name": "Portronics SoundDrum Portable Speaker",
@@ -217,7 +255,9 @@
             "Inbuilt FM radio receiver",
             "Up to 7 hours of non-stop battery backup",
             "IPX6 water and splash resistant"
-        ]
+        ],
+        "price": 1599,
+        "original_price": 2999
     },
     {
         "name": "TP-Link TL-WA850RE N300 Universal Range Extender",
@@ -228,6 +268,8 @@
             "Easy setup with Range Extender button",
             "Ethernet port for wired devices",
             "Smart signal indicator light"
-        ]
+        ],
+        "price": 1499,
+        "original_price": 2999
     }
 ]

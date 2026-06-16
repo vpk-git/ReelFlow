@@ -221,6 +221,98 @@
             transform: translateY(-2px);
             box-shadow: 0 15px 30px rgba(0, 242, 254, 0.4);
         }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-group .cta-btn {
+            flex: 2;
+        }
+
+        .share-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 20px;
+            border-radius: 16px;
+            background: rgba(37, 211, 102, 0.15);
+            color: #25d366;
+            border: 1px solid rgba(37, 211, 102, 0.3);
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .share-btn:hover {
+            background: rgba(37, 211, 102, 0.25);
+            border-color: rgba(37, 211, 102, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Price Formatting */
+        .price-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0 8px 0;
+        }
+
+        .current-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent-secondary);
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+        }
+
+        .original-price {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .discount-badge {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            color: #111;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        /* Countdown Urgency */
+        .countdown-container {
+            background: rgba(0, 242, 254, 0.04);
+            border: 1px solid rgba(0, 242, 254, 0.1);
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .countdown-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .countdown-timer {
+            font-family: monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--accent-secondary);
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+        }
         
         /* Previous Products List */
         .product-list {
@@ -249,12 +341,13 @@
         }
         
         .card-img-container {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 12px;
             overflow: hidden;
             background: rgba(255,255,255,0.02);
             flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         
         .card-img {
@@ -273,7 +366,7 @@
         }
         
         .card-title {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
@@ -281,21 +374,64 @@
         }
         
         .card-category {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .card-price-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+        }
+
+        .card-current-price {
+            font-size: 1.05rem;
+            font-weight: 700;
             color: var(--accent-secondary);
-            font-weight: 600;
-            letter-spacing: 1px;
+        }
+
+        .card-original-price {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 6px;
         }
         
         .card-btn {
-            align-self: flex-start;
             font-size: 0.8rem;
             font-weight: 800;
             color: var(--text-main);
             text-decoration: none;
             border-bottom: 2px solid var(--accent-primary);
             padding-bottom: 2px;
-            margin-top: 4px;
+        }
+
+        .card-share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(37, 211, 102, 0.1);
+            color: #25d366;
+            border: 1px solid rgba(37, 211, 102, 0.2);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .card-share-btn:hover {
+            background: rgba(37, 211, 102, 0.2);
+            transform: scale(1.1);
         }
         
         /* Footer */
@@ -340,11 +476,29 @@
                 <div class="featured-info">
                     <span class="featured-category">LOGITECH KEYBOARD</span>
                     <h3 class="featured-title">Logitech K380 Multi-Device Bluetooth Keyboard</h3>
+                    
+                    <div class="price-container">
+                        <span class="current-price">₹2,499</span>
+                        <span class="original-price">₹3,999</span>
+                        <span class="discount-badge">38% OFF</span>
+                    </div>
+
+                    <div class="countdown-container">
+                        <span class="countdown-label">Deal resets in:</span>
+                        <div id="countdown-timer" class="countdown-timer">--:--:--</div>
+                    </div>
+
                     <ul class="featured-points">
                         <li>Connect up to 3 devices and switch with Easy-Switch button</li><li>Slim, lightweight, and compact design</li><li>Quiet, comfortable, low-profile keys</li><li>2-year battery life with pre-installed AAA batteries</li>
                     </ul>
                 </div>
-                <a href="https://www.amazon.in/dp/B0148NPH9I?tag=goal2rush26-21" target="_blank" class="cta-btn">Get it on Amazon</a>
+                <div class="btn-group">
+                    <a href="https://www.amazon.in/dp/B0148NPH9I?tag=goal2rush26-21" target="_blank" class="cta-btn">Get it on Amazon</a>
+                    <a href="https://api.whatsapp.com/send?text=%F0%9F%94%A5%20Check%20out%20this%20amazing%20deal%20on%20the%20Logitech%20K380%20Multi-Device%20Bluetooth%20Keyboard%21%20Only%20%E2%82%B92%2C499%20%2838%25%20OFF%29%20%F0%9F%91%89%20https%3A//www.amazon.in/dp/B0148NPH9I%3Ftag%3Dgoal2rush26-21" target="_blank" class="share-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 6px;"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.371a9.994 9.994 0 0 0 4.779 1.207h.004c5.505 0 9.988-4.478 9.99-9.984a9.988 9.988 0 0 0-2.927-7.062A9.957 9.957 0 0 0 12.012 2zm5.726 14.184c-.314.88-1.547 1.62-2.126 1.716-.52.087-1.196.115-1.928-.118a10.038 10.038 0 0 1-4.08-2.616 10.835 10.835 0 0 1-2.336-3.876c-.47-.798-.79-1.688-.813-2.618-.027-1.12.55-1.668.783-1.89.232-.224.51-.285.68-.285.17 0 .34.007.49.015.158.007.37-.06.577.447.21.517.72 1.76.783 1.894.064.133.106.29.015.474-.092.186-.14.293-.277.458-.137.164-.287.365-.41.49-.137.137-.28.286-.12.56.16.273.71 1.173 1.523 1.896.7.625 1.29.82 1.472.91.18.093.287.077.394-.047.106-.123.46-.534.582-.717.123-.183.245-.152.41-.09.165.06 1.048.494 1.226.584.177.09.296.136.34.21.044.075.044.436-.27 1.317z"/></svg>
+                        Share Deal
+                    </a>
+                </div>
             </div>
         </div>
         
@@ -357,7 +511,16 @@
             <div class="card-content">
                 <h3 class="card-title">Portronics Ruffpad 8.5 Reusable LCD Writing Pad</h3>
                 <p class="card-category">WRITING PAD</p>
-                <a href="https://www.amazon.in/dp/B07H8NCS9S?tag=goal2rush26-21" target="_blank" class="card-btn">Shop on Amazon</a>
+                <div class="card-price-container">
+                    <span class="card-current-price">₹299</span>
+                    <span class="card-original-price">₹999</span>
+                </div>
+                <div class="card-actions">
+                    <a href="https://www.amazon.in/dp/B07H8NCS9S?tag=goal2rush26-21" target="_blank" class="card-btn">Shop on Amazon</a>
+                    <a href="https://api.whatsapp.com/send?text=%F0%9F%94%A5%20Amazing%20deal%20on%20the%20Portronics%20Ruffpad%208.5%20Reusable%20LCD%20Writing%20Pad%21%20Only%20%E2%82%B9299%20%2870%25%20OFF%29%20%F0%9F%91%89%20https%3A//www.amazon.in/dp/B07H8NCS9S%3Ftag%3Dgoal2rush26-21" target="_blank" class="card-share-btn" title="Share Deal">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.371a9.994 9.994 0 0 0 4.779 1.207h.004c5.505 0 9.988-4.478 9.99-9.984a9.988 9.988 0 0 0-2.927-7.062A9.957 9.957 0 0 0 12.012 2zm5.726 14.184c-.314.88-1.547 1.62-2.126 1.716-.52.087-1.196.115-1.928-.118a10.038 10.038 0 0 1-4.08-2.616 10.835 10.835 0 0 1-2.336-3.876c-.47-.798-.79-1.688-.813-2.618-.027-1.12.55-1.668.783-1.89.232-.224.51-.285.68-.285.17 0 .34.007.49.015.158.007.37-.06.577.447.21.517.72 1.76.783 1.894.064.133.106.29.015.474-.092.186-.14.293-.277.458-.137.164-.287.365-.41.49-.137.137-.28.286-.12.56.16.273.71 1.173 1.523 1.896.7.625 1.29.82 1.472.91.18.093.287.077.394-.047.106-.123.46-.534.582-.717.123-.183.245-.152.41-.09.165.06 1.048.494 1.226.584.177.09.296.136.34.21.044.075.044.436-.27 1.317z"/></svg>
+                    </a>
+                </div>
             </div>
         </div>
         
@@ -368,7 +531,16 @@
             <div class="card-content">
                 <h3 class="card-title">Mi 10000mAh Power Bank 3i</h3>
                 <p class="card-category">POWER BANK</p>
-                <a href="https://www.amazon.in/dp/B08HV83HL3?tag=goal2rush26-21" target="_blank" class="card-btn">Shop on Amazon</a>
+                <div class="card-price-container">
+                    <span class="card-current-price">₹1,299</span>
+                    <span class="card-original-price">₹1,899</span>
+                </div>
+                <div class="card-actions">
+                    <a href="https://www.amazon.in/dp/B08HV83HL3?tag=goal2rush26-21" target="_blank" class="card-btn">Shop on Amazon</a>
+                    <a href="https://api.whatsapp.com/send?text=%F0%9F%94%A5%20Amazing%20deal%20on%20the%20Mi%2010000mAh%20Power%20Bank%203i%21%20Only%20%E2%82%B91%2C299%20%2832%25%20OFF%29%20%F0%9F%91%89%20https%3A//www.amazon.in/dp/B08HV83HL3%3Ftag%3Dgoal2rush26-21" target="_blank" class="card-share-btn" title="Share Deal">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.371a9.994 9.994 0 0 0 4.779 1.207h.004c5.505 0 9.988-4.478 9.99-9.984a9.988 9.988 0 0 0-2.927-7.062A9.957 9.957 0 0 0 12.012 2zm5.726 14.184c-.314.88-1.547 1.62-2.126 1.716-.52.087-1.196.115-1.928-.118a10.038 10.038 0 0 1-4.08-2.616 10.835 10.835 0 0 1-2.336-3.876c-.47-.798-.79-1.688-.813-2.618-.027-1.12.55-1.668.783-1.89.232-.224.51-.285.68-.285.17 0 .34.007.49.015.158.007.37-.06.577.447.21.517.72 1.76.783 1.894.064.133.106.29.015.474-.092.186-.14.293-.277.458-.137.164-.287.365-.41.49-.137.137-.28.286-.12.56.16.273.71 1.173 1.523 1.896.7.625 1.29.82 1.472.91.18.093.287.077.394-.047.106-.123.46-.534.582-.717.123-.183.245-.152.41-.09.165.06 1.048.494 1.226.584.177.09.296.136.34.21.044.075.044.436-.27 1.317z"/></svg>
+                    </a>
+                </div>
             </div>
         </div>
         </div></div>
@@ -378,5 +550,27 @@
             <p>Powered by <a href="https://github.com/GoogleDeepMind" target="_blank">ReelFlow Automation</a></p>
         </footer>
     </div>
+
+    <!-- Countdown Timer script -->
+    <script>
+        function updateCountdown() {
+            const now = new Date();
+            const tomorrow = new Date();
+            tomorrow.setHours(24, 0, 0, 0); // Next midnight
+            const diff = tomorrow - now;
+            
+            const hrs = Math.floor(diff / 3600000);
+            const mins = Math.floor((diff % 3600000) / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+            
+            const timerEl = document.getElementById('countdown-timer');
+            if (timerEl) {
+                timerEl.textContent = 
+                    `${hrs.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+            }
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    </script>
 </body>
 </html>

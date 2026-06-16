@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReelFlow Admin Dashboard & API Monitor</title>
+    <meta name="description" content="Local admin panel for monitoring ReelFlow automated video uploads and live API communication status.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #07080e;
+            --card-bg: rgba(16, 20, 38, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-color: #f1f2f6;
+            --text-muted: #8b92b6;
+            --primary: #7000ff;
+            --primary-glow: rgba(112, 0, 255, 0.4);
+            --accent: #00f2fe;
+            --accent-glow: rgba(0, 242, 254, 0.4);
+            --success: #00e676;
+            --danger: #ff1744;
+            --warning: #ffea00;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header Layout */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 span {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            -webkit-text-fill-color: initial;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, rgba(140, 0, 255, 0.8) 100%);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(112, 0, 255, 0.6);
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Grid Layouts */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glassmorphism Card Style */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 242, 254, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+            color: #fff;
+        }
+
+        /* API Status Grid */
+        .api-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .api-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .api-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateX(4px);
+        }
+
+        .api-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .api-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .api-details {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.online {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.1);
+        }
+
+        .status-badge.offline {
+            background: rgba(255, 23, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            box-shadow: 0 0 10px rgba(255, 23, 68, 0.1);
+        }
+
+        .status-badge.checking {
+            background: rgba(255, 234, 0, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(255, 234, 0, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+            display: inline-block;
+        }
+
+        .status-badge.online .status-dot {
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+
+        /* Flow Diagram Section */
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 0;
+            width: 100%;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.05);
+        }
+
+        .diagram-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 120px;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .diagram-node:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .node-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .node-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .node-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.2rem;
+            font-weight: bold;
+            opacity: 0.6;
+            animation: arrowGlow 2s infinite ease-in-out;
+        }
+
+        @keyframes arrowGlow {
+            0% { opacity: 0.3; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.3; transform: scale(0.9); }
+        }
+
+        @media (max-width: 768px) {
+            .flow-diagram {
+                flex-direction: column;
+            }
+            .flow-arrow {
+                transform: rotate(90deg);
+                margin: 0.5rem 0;
+            }
+            @keyframes arrowGlow {
+                0% { opacity: 0.3; }
+                50% { opacity: 1; }
+                100% { opacity: 0.3; }
+            }
+        }
+
+        /* Upload History Section */
+        .history-card {
+            margin-top: 2rem;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            padding: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .prod-cell {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .id-cell {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        .date-cell {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .caption-cell {
+            max-width: 400px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Quick Info Row */
+        .info-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .info-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .info-val {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .info-val.highlight {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Dashboard Header -->
+        <header>
+            <h1 id="main-title">ReelFlow <span>Dashboard</span></h1>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <a href="https://vpk-git.github.io/ReelFlow/" target="_blank" class="btn" style="background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3); text-decoration: none; display: inline-flex;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                    View Live Page
+                </a>
+                <button class="btn" id="refresh-btn" onclick="fetchDiagnostics()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Refresh Board
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Boxes -->
+        <div class="info-row" id="stats-row">
+            <div class="info-box" id="stat-uploads">
+                <span class="info-label" id="label-uploads">Total Uploads</span>
+                <span class="info-val highlight" id="val-uploads">--</span>
+            </div>
+            <div class="info-box" id="stat-health">
+                <span class="info-label" id="label-health">API Health</span>
+                <span class="info-val" id="val-health" style="color: var(--success)">100%</span>
+            </div>
+            <div class="info-box" id="stat-engine">
+                <span class="info-label" id="label-engine">Local Engine</span>
+                <span class="info-val" id="val-engine">FFmpeg + TTS</span>
+            </div>
+            <div class="info-box" id="stat-frequency">
+                <span class="info-label" id="label-frequency">Post Frequency</span>
+                <span class="info-val" id="val-frequency">3 / Day</span>
+            </div>
+        </div>
+
+        <!-- Main Workspace Grid -->
+        <div class="dashboard-grid">
+            <!-- Left Column: Interactive Diagram -->
+            <div class="card" id="diagram-card">
+                <h2 class="card-title" id="title-diagram">
+                    API Communication Flow
+                    <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted)">Live Data Pipeline</span>
+                </h2>
+                
+                <div class="diagram-container">
+                    <div class="flow-diagram" id="flow-diagram-container">
+                        <!-- Node 1 -->
+                        <div class="diagram-node" id="node-products">
+                            <span class="node-icon">📦</span>
+                            <span class="node-title">products.json</span>
+                            <span class="node-desc">Target Pools</span>
+                        </div>
+                        
+                        <div class="flow-arrow">➔</div>
+                        
+                        <!-- Node 2 -->
+                        <div class="diagram-node" id="node-gemini">
+                            <span class="node-icon">🧠</span>
+                            <span class="node-title">Gemini API</span>
+                            <span class="node-desc">AI Review Scripts</span>
+                        </div>
+                        
+                        <div class="flow-arrow">➔</div>
+                        
+                        <!-- Node 3 -->
+                        <div class="diagram-node" id="node-scrapers">
+                            <span class="node-icon">🛍️</span>
+                            <span class="node-title">Flipkart Scraper</span>
+                            <span class="node-desc">Product Photos</span>
+                        </div>
+                        
+                        <div class="flow-arrow">➔</div>
+                        
+                        <!-- Node 4 -->
+                        <div class="diagram-node" id="node-assets">
+                            <span class="node-icon">🎬</span>
+                            <span class="node-title">Pexels API</span>
+                            <span class="node-desc">Fallback Video</span>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow" style="transform: rotate(90deg); margin: 0.5rem 0;">➔</div>
+
+                    <div class="flow-diagram" id="flow-diagram-lower">
+                        <!-- Node 5 -->
+                        <div class="diagram-node" id="node-tts">
+                            <span class="node-icon">🗣️</span>
+                            <span class="node-title">Coqui TTS</span>
+                            <span class="node-desc">Voice Generation</span>
+                        </div>
+                        
+                        <div class="flow-arrow">➔</div>
+                        
+                        <!-- Node 6 -->
+                        <div class="diagram-node" id="node-ffmpeg">
+                            <span class="node-icon">⚙️</span>
+                            <span class="node-title">FFmpeg Compiler</span>
+                            <span class="node-desc">Video Render</span>
+                        </div>
+                        
+                        <div class="flow-arrow">➔</div>
+                        
+                        <!-- Node 7 -->
+                        <div class="diagram-node" id="node-instagram">
+                            <span class="node-icon">📸</span>
+                            <span class="node-title">Instagram Graph API</span>
+                            <span class="node-desc">Reel Publisher</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: API Connectivity Status -->
+            <div class="card" id="status-card">
+                <h2 class="card-title" id="title-status">API Health & Connectivity</h2>
+                <div class="api-list" id="api-list-container">
+                    <!-- Gemini -->
+                    <div class="api-item" id="item-gemini">
+                        <div class="api-info">
+                            <span class="api-name">Gemini API</span>
+                            <span class="api-details" id="details-gemini">Checking connection...</span>
+                        </div>
+                        <span class="status-badge checking" id="badge-gemini"><span class="status-dot"></span>Checking</span>
+                    </div>
+                    <!-- Pexels -->
+                    <div class="api-item" id="item-pexels">
+                        <div class="api-info">
+                            <span class="api-name">Pexels API</span>
+                            <span class="api-details" id="details-pexels">Checking connection...</span>
+                        </div>
+                        <span class="status-badge checking" id="badge-pexels"><span class="status-dot"></span>Checking</span>
+                    </div>
+                    <!-- Flipkart -->
+                    <div class="api-item" id="item-flipkart">
+                        <div class="api-info">
+                            <span class="api-name">Flipkart Scraper</span>
+                            <span class="api-details" id="details-flipkart">Checking ping...</span>
+                        </div>
+                        <span class="status-badge checking" id="badge-flipkart"><span class="status-dot"></span>Checking</span>
+                    </div>
+                    <!-- Instagram -->
+                    <div class="api-item" id="item-instagram">
+                        <div class="api-info">
+                            <span class="api-name">Meta Graph API</span>
+                            <span class="api-details" id="details-instagram">Checking auth token...</span>
+                        </div>
+                        <span class="status-badge checking" id="badge-instagram"><span class="status-dot"></span>Checking</span>
+                    </div>
+                    <!-- Coqui -->
+                    <div class="api-item" id="item-coqui">
+                        <div class="api-info">
+                            <span class="api-name">Coqui TTS</span>
+                            <span class="api-details" id="details-coqui">Locating engine...</span>
+                        </div>
+                        <span class="status-badge checking" id="badge-coqui"><span class="status-dot"></span>Checking</span>
+                    </div>
+                    <!-- FFmpeg -->
+                    <div class="api-item" id="item-ffmpeg">
+                        <div class="api-info">
+                            <span class="api-name">FFmpeg Compiler</span>
+                            <span class="api-details" id="details-ffmpeg">Locating path...</span>
+                        </div>
+                        <span class="status-badge checking" id="badge-ffmpeg"><span class="status-dot"></span>Checking</span>
+                    </div>
+                    <!-- Task Scheduler -->
+                    <div class="api-item" id="item-scheduler">
+                        <div class="api-info">
+                            <span class="api-name">Windows Scheduler</span>
+                            <span class="api-details" id="details-scheduler">Checking active task...</span>
+                        </div>
+                        <span class="status-badge checking" id="badge-scheduler"><span class="status-dot"></span>Checking</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Card: Upload History -->
+        <div class="card history-card" id="history-card">
+            <h2 class="card-title" id="title-history">Videos Uploaded (Reels History)</h2>
+            <div class="table-container">
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th id="th-date">Upload Date</th>
+                            <th id="th-product">Product Name</th>
+                            <th id="th-reel">Published Reel ID</th>
+                            <th id="th-caption">Instagram Caption</th>
+                            <th id="th-status">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted);" id="td-loading">Loading upload history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Scripting for API calls -->
+    <script>
+        const API_URL = "http://localhost:8000";
+
+        async function fetchDiagnostics() {
+            setLoadingState();
+            try {
+                const response = await fetch(`${API_URL}/api/status`);
+                if (!response.ok) throw new Error("Status check failed");
+                const data = await response.json();
+                updateDiagnosticsUI(data);
+            } catch (error) {
+                console.error("Error fetching diagnostics:", error);
+                setErrorState();
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                const response = await fetch(`${API_URL}/api/history`);
+                if (!response.ok) throw new Error("History fetch failed");
+                const data = await response.json();
+                updateHistoryUI(data);
+            } catch (error) {
+                console.error("Error fetching history:", error);
+                document.getElementById("history-tbody").innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--danger);">Failed to load upload logs.</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function setLoadingState() {
+            const badges = ["gemini", "pexels", "flipkart", "instagram", "coqui", "ffmpeg", "scheduler"];
+            badges.forEach(b => {
+                const badge = document.getElementById(`badge-${b}`);
+                if (badge) {
+                    badge.className = "status-badge checking";
+                    badge.innerHTML = `<span class="status-dot"></span>Checking`;
+                }
+            });
+        }
+
+        function setErrorState() {
+            const badges = ["gemini", "pexels", "flipkart", "instagram", "coqui", "ffmpeg", "scheduler"];
+            badges.forEach(b => {
+                const badge = document.getElementById(`badge-${b}`);
+                if (badge) {
+                    badge.className = "status-badge offline";
+                    badge.innerHTML = `<span class="status-dot"></span>Offline`;
+                }
+                const details = document.getElementById(`details-${b}`);
+                if (details) {
+                    details.textContent = "Server unreachable";
+                }
+            });
+            document.getElementById("val-health").textContent = "0%";
+            document.getElementById("val-health").style.color = "var(--danger)";
+        }
+
+        function updateDiagnosticsUI(data) {
+            let onlineCount = 0;
+            let totalChecks = 0;
+
+            for (const [key, check] of Object.entries(data)) {
+                totalChecks++;
+                const itemKey = key === "coqui_tts" ? "coqui" : key;
+                
+                const badge = document.getElementById(`badge-${itemKey}`);
+                const details = document.getElementById(`details-${itemKey}`);
+
+                if (check.status === "ONLINE" || check.status === "SKIPPED") {
+                    onlineCount++;
+                    if (badge) {
+                        badge.className = "status-badge online";
+                        badge.innerHTML = `<span class="status-dot"></span>Online`;
+                        if (check.latency !== "-") {
+                            badge.innerHTML += ` (${check.latency})`;
+                        }
+                    }
+                } else {
+                    if (badge) {
+                        badge.className = "status-badge offline";
+                        badge.innerHTML = `<span class="status-dot"></span>Offline`;
+                    }
+                }
+
+                if (details) {
+                    details.textContent = check.details;
+                }
+            }
+
+            // Calculate health percentage
+            if (totalChecks > 0) {
+                const healthPct = Math.round((onlineCount / totalChecks) * 100);
+                const healthVal = document.getElementById("val-health");
+                healthVal.textContent = `${healthPct}%`;
+                if (healthPct > 80) {
+                    healthVal.style.color = "var(--success)";
+                } else if (healthPct > 40) {
+                    healthVal.style.color = "var(--warning)";
+                } else {
+                    healthVal.style.color = "var(--danger)";
+                }
+            }
+        }
+
+        function updateHistoryUI(data) {
+            const tbody = document.getElementById("history-tbody");
+            document.getElementById("val-uploads").textContent = data.length;
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted);">No reels have been published yet.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Sort history by date descending
+            data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            tbody.innerHTML = "";
+            data.forEach(item => {
+                const dateObj = new Date(item.timestamp);
+                const formattedDate = dateObj.toLocaleDateString('en-IN', {
+                    day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="date-cell">${formattedDate}</td>
+                    <td class="prod-cell">${item.product_name}</td>
+                    <td class="id-cell">${item.reel_id}</td>
+                    <td class="caption-cell" title="${item.caption}">${item.caption}</td>
+                    <td><span class="status-badge online" style="padding: 0.2rem 0.6rem; font-size: 0.7rem;"><span class="status-dot"></span>${item.status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize Board on Page Load
+        window.addEventListener("DOMContentLoaded", () => {
+            fetchDiagnostics();
+            fetchHistory();
+        });
+    </script>
+</body>
+</html>
