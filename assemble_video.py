@@ -156,7 +156,7 @@ def main():
     tts_cmd = [
         ".venv\\Scripts\\tts",
         "--text", script_text,
-        "--model_name", "tts_models/en/ljspeech/vits",
+        "--model_name", "tts_models/en/jenny/jenny",
         "--out_path", voiceover_wav
     ]
     
@@ -248,10 +248,12 @@ def main():
         # Build the complex filter graph
         filter_parts = []
         for i in range(len(images)):
+            frames = int(t * 25)
             filter_parts.append(
                 f"[{i}:v]scale=1080:1920:force_original_aspect_ratio=increase,boxblur=20[bg{i}]; "
                 f"[{i}:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg{i}]; "
-                f"[bg{i}][fg{i}]overlay=(W-w)/2:(H-h)/2[v{i}]"
+                f"[bg{i}][fg{i}]overlay=(W-w)/2:(H-h)/2[merged{i}]; "
+                f"[merged{i}]zoompan=z='min(zoom+0.0015,1.15)':d={frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920:fps=25[v{i}]"
             )
             
         # Concat part

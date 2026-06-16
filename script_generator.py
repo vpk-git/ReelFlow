@@ -280,12 +280,12 @@ def generate_script(api_key, topic=None, product=None):
         # Build prompt for a product review / recommendation
         points_str = "\n".join([f"- {p}" for p in product.get("selling_points", [])])
         prompt = (
-            f"Write a highly engaging 30-second product recommendation review script suitable for an Instagram Reel. "
+            f"Write a highly engaging 20-second product recommendation review script suitable for an Instagram Reel. "
             f"The product name is: '{product['name']}'.\n"
             f"Key features and selling points to highlight:\n{points_str}\n\n"
-            "The script must start with an attention-grabbing hook, highlight 2 key benefits of the product, "
+            "The script must start with an attention-grabbing hook, highlight 1-2 key benefits of the product, "
             "and end with a verbal call-to-action: 'Link in bio to check it out!' "
-            "The voiceover text (script_text) must be natural, fast-paced, and easy to read aloud under 30 seconds (about 60-80 words maximum). "
+            "The voiceover text (script_text) must be natural, conversational, and easy to read aloud in STRICTLY under 20 seconds (about 40-45 words maximum). "
             "Do not include any sound effects, placeholders, or scene descriptions in the script_text—only the exact words that should be spoken. "
             "Provide a short, catchy title. "
             "Provide an Instagram caption directing viewers to click the link in our bio to buy, with hashtags."
@@ -300,7 +300,7 @@ def generate_script(api_key, topic=None, product=None):
         prompt = (
             f"Write a highly engaging 30-second coding tip, trick, or concept overview suitable for an Instagram Reel. "
             f"{topic_clause} "
-            "The voiceover text (script_text) must be natural, fast-paced, and easy to read aloud under 30 seconds (about 60-80 words maximum). "
+            "The voiceover text (script_text) must be natural, fast-paced, and easy to read aloud under 20 seconds (about 40-45 words maximum). "
             "Do not include any sound effects, placeholders, or scene descriptions in the script_text—only the exact words that should be spoken. "
             "Provide an attention-grabbing title. "
             "Provide a compelling Instagram caption complete with relevant tech and coding hashtags."
