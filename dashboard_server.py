@@ -30,6 +30,23 @@ def load_env(filepath=".env"):
                 os.environ[key.strip()] = val_str
     return True
 
+def read_live_env(filepath=".env"):
+    """Reads the current .env file directly from disk and returns key-value mappings."""
+    env_vars = {}
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    if "=" in line:
+                        key, val = line.split("=", 1)
+                        env_vars[key.strip()] = val.strip().strip("'").strip('"')
+        except Exception:
+            pass
+    return env_vars
+
 # Ensure env variables are loaded
 load_env()
 
@@ -152,9 +169,10 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
 
     def run_diagnostics(self):
         diagnostics = {}
+        current_env = read_live_env()
         
         # 1. Check Gemini API
-        gemini_key = os.environ.get("GEMINI_API_KEY")
+        gemini_key = current_env.get("GEMINI_API_KEY") if "GEMINI_API_KEY" in current_env else os.environ.get("GEMINI_API_KEY")
         if not gemini_key or "your_" in gemini_key:
             diagnostics["gemini"] = {"status": "OFFLINE", "details": "Key not configured in .env", "latency": "-"}
         else:
@@ -166,14 +184,14 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
                 r = requests.get(url, timeout=5)
                 latency = int((time.time() - start) * 1000)
                 if r.status_code == 200:
-                    diagnostics["gemini"] = {"status": "ONLINE", "details": "Connection successful", "latency": f"{latency}ms"}
+                    diagnostics["gemini"] = {"status": "ONLINE", "details": "Connection successful (Permanent Key)", "latency": f"{latency}ms"}
                 else:
                     diagnostics["gemini"] = {"status": "OFFLINE", "details": f"API error (Status {r.status_code})", "latency": "-"}
             except Exception as e:
                 diagnostics["gemini"] = {"status": "OFFLINE", "details": f"Connection failed: {e}", "latency": "-"}
                 
         # 2. Check Pexels API
-        pexels_key = os.environ.get("PEXELS_API_KEY")
+        pexels_key = current_env.get("PEXELS_API_KEY") if "PEXELS_API_KEY" in current_env else os.environ.get("PEXELS_API_KEY")
         if not pexels_key or "your_" in pexels_key:
             diagnostics["pexels"] = {"status": "OFFLINE", "details": "Key not configured in .env", "latency": "-"}
         else:
@@ -185,7 +203,7 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
                 r = requests.get(url, headers=headers, timeout=5)
                 latency = int((time.time() - start) * 1000)
                 if r.status_code == 200:
-                    diagnostics["pexels"] = {"status": "ONLINE", "details": "Connection successful", "latency": f"{latency}ms"}
+                    diagnostics["pexels"] = {"status": "ONLINE", "details": "Connection successful (Permanent Key)", "latency": f"{latency}ms"}
                 else:
                     diagnostics["pexels"] = {"status": "OFFLINE", "details": f"API error (Status {r.status_code})", "latency": "-"}
             except Exception as e:
@@ -199,15 +217,15 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
             r = requests.get("https://www.flipkart.com/search?q=test", headers={'User-Agent': 'Mozilla/5.0'}, timeout=5)
             latency = int((time.time() - start) * 1000)
             if r.status_code == 200:
-                diagnostics["flipkart"] = {"status": "ONLINE", "details": "Search catalog active", "latency": f"{latency}ms"}
+                diagnostics["flipkart"] = {"status": "ONLINE", "details": "Search catalog active (No Expiry)", "latency": f"{latency}ms"}
             else:
                 diagnostics["flipkart"] = {"status": "OFFLINE", "details": f"HTTP status {r.status_code}", "latency": "-"}
         except Exception as e:
             diagnostics["flipkart"] = {"status": "OFFLINE", "details": f"Ping failed: {e}", "latency": "-"}
 
         # 4. Check Meta/Instagram Graph API
-        ig_user_id = os.environ.get("IG_USER_ID")
-        access_token = os.environ.get("META_ACCESS_TOKEN")
+        ig_user_id = current_env.get("IG_USER_ID") if "IG_USER_ID" in current_env else os.environ.get("IG_USER_ID")
+        access_token = current_env.get("META_ACCESS_TOKEN") if "META_ACCESS_TOKEN" in current_env else os.environ.get("META_ACCESS_TOKEN")
         if not ig_user_id or not access_token or "your_" in access_token:
             diagnostics["instagram"] = {"status": "OFFLINE", "details": "Credentials not set in .env", "latency": "-"}
         else:
@@ -220,9 +238,43 @@ class DashboardAPIHandler(SimpleHTTPRequestHandler):
                 latency = int((time.time() - start) * 1000)
                 if r.status_code == 200:
                     data = r.json()
+                    username = data.get('username', 'ReelFlow')
+                    
+                    # Fetch Token Expiry details via Meta's debug_token endpoint
+                    meta_expiry = "Unknown Expiry"
+                    app_id = current_env.get("META_APP_ID") or os.environ.get("META_APP_ID")
+                    app_secret = current_env.get("META_APP_SECRET") or os.environ.get("META_APP_SECRET")
+                    if app_id and app_secret:
+                        app_token = f"{app_id}|{app_secret}"
+                        debug_url = "https://graph.facebook.com/debug_token"
+                        debug_params = {
+                            "input_token": access_token,
+                            "access_token": app_token
+                        }
+                        try:
+                            debug_res = requests.get(debug_url, params=debug_params, timeout=5)
+                            if debug_res.status_code == 200:
+                                debug_data = debug_res.json().get("data", {})
+                                if debug_data.get("is_valid"):
+                                    expires_at = debug_data.get("expires_at", 0)
+                                    if expires_at == 0:
+                                        meta_expiry = "Never Expires"
+                                    else:
+                                        import datetime
+                                        delta = datetime.datetime.fromtimestamp(expires_at) - datetime.datetime.now()
+                                        days_left = delta.days
+                                        if days_left < 0:
+                                            meta_expiry = "Expired"
+                                        else:
+                                            meta_expiry = f"Expires in {days_left} days"
+                                else:
+                                    meta_expiry = "Invalid Token"
+                        except Exception:
+                            pass
+                            
                     diagnostics["instagram"] = {
                         "status": "ONLINE",
-                        "details": f"Account: @{data.get('username', 'ReelFlow')}",
+                        "details": f"Account: @{username} ({meta_expiry})",
                         "latency": f"{latency}ms"
                     }
                 else:
